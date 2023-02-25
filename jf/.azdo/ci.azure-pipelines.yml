@@ -5,7 +5,7 @@ trigger:
       - feature/*
   paths:
     include:
-      - jq
+      - jf
       - .azdo/templates/docker-ci.azure-pipelines.yml
     exclude:
       - "*.md"
@@ -16,7 +16,7 @@ pr:
       - main
   paths:
     include:
-      - jq
+      - jf
     exclude:
       - "*.md"
 
