@@ -11,16 +11,6 @@ trigger:
     exclude:
       - "*.md"
 
-pr:
-  branches:
-    include:
-      - main
-  paths:
-    include:
-      - jf
-    exclude:
-      - "*.md"
-
 jobs:
   - template: ../../.azdo/templates/docker-ci.azure-pipelines.yml
     parameters:
