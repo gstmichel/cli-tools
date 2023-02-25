@@ -7,14 +7,14 @@ jobs:
   - job: build
     displayName: Build & Publish
     variables:
-      is_release: $[and( ne(variables['BuildReason'], 'PullRequest'), eq(variables['Build.SourceBranch'], 'refs/heads/main')))]
+      is_release: $[and( ne(variables['BuildReason'], 'PullRequest'), eq(variables['Build.SourceBranch'], 'refs/heads/main'))]
       is_next: $[and( eq(variables['BuildReason'], 'PullRequest'), eq(variablesp['System.PullRequest.TargetBranch'], 'refs/heads/main'))]
 
     steps:
       - checkout: self
 
       - bash: |
-          version="$(grep -i '${{ parameters.cli_name }}_VERSON' ${{ parameters.cli_name }}/Dockerfile | cut -d= -f2)"
+          version="$(grep -i '${{ parameters.cli_name }}_VERSON=' ${{ parameters.cli_name }}/Dockerfile | cut -d= -f2 | cut -d' ' -f1)"
           echo "##vso[task.setvariable variable=cli.version]$version"
 
           if "$(is_release)" == "true"
