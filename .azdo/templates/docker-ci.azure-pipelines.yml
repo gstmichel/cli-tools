@@ -14,13 +14,14 @@ jobs:
       - checkout: self
 
       - bash: |
+          env
           version="$(grep -i '${{ parameters.cli_name }}_VERSON=' ${{ parameters.cli_name }}/Dockerfile | cut -d= -f2 | cut -d' ' -f1)"
           echo "##vso[task.setvariable variable=cli.version]$version"
 
-          if "$(is_release)" == "true"
+          if "$IS_RELEASE" == "true"
           then
             echo "##vso[build.updatebuildnumber]$version"
-          elif "$(is_next)" == "true"
+          elif "$IS_NEXT" == "true"
           then
             echo "##vso[build.updatebuildnumber]$version - next"
           else
