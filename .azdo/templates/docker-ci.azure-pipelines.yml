@@ -7,17 +7,26 @@ jobs:
   - job: build
     displayName: Build & Publish
     variables:
-      is_release: $[eq(variables['Build.SourceBranch'], 'refs/heads/main'))]
+      is_release: $[and( ne(variables['BuildReason'], 'PullRequest'), eq(variables['Build.SourceBranch'], 'refs/heads/main')))]
       is_next: $[and( eq(variables['BuildReason'], 'PullRequest'), eq(variablesp['System.PullRequest.TargetBranch'], 'refs/heads/main'))]
 
     steps:
       - checkout: self
-        persistCredentials: true
 
       - bash: |
           version="$(grep -i '${{ parameters.cli_name }}_VERSON' ${{ parameters.cli_name }}/Dockerfile | cut -d= -f2)"
           echo "##vso[task.setvariable variable=cli.version]$version"
-          echo "##vso[build.updatebuildnumber]$version"
+
+          if "$(is_release)" == "true"
+          then
+            echo "##vso[build.updatebuildnumber]$version"
+          elif "$(is_next)" == "true"
+          then
+            echo "##vso[build.updatebuildnumber]$version - next"
+          else
+            echo "##vso[build.updatebuildnumber]$version - validation"
+          fi
+
         displayName: Init Variables
 
       - task: Docker@2
@@ -33,7 +42,7 @@ jobs:
             latest
             next
 
-      - ${{ if eq(variables['BuildReason'], 'PullRequest')) }}:
+      - ${{ if eq(variables['BuildReason'], 'PullRequest') }}:
           - task: Docker@2
             displayName: Publish
             inputs:
@@ -44,7 +53,7 @@ jobs:
                 next
             condition: $(variables['is_next'])
 
-      - ${{ elseif eq(variables['Build.SourceBranch'], 'refs/heads/main')) }}:
+      - ${{ elseif and(eq(variables['BuildReason'], 'PullRequest'), eq(variables['Build.SourceBranch'], 'refs/heads/main')) }}:
           - task: Docker@2
             displayName: Publish
             inputs:
