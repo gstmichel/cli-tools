@@ -15,13 +15,13 @@ jobs:
 
       - bash: |
           env
-          version="$(grep -i '${{ parameters.cli_name }}_VERSON=' ${{ parameters.cli_name }}/Dockerfile | cut -d= -f2 | cut -d' ' -f1)"
+          version="$(grep -i '${{ parameters.cli_name }}version=' ${{ parameters.cli_name }}/Dockerfile | cut -d= -f2 | cut -d' ' -f1)"
           echo "##vso[task.setvariable variable=cli.version]$version"
 
-          if "$IS_RELEASE" == "true"
+          if [[ "$IS_RELEASE" == "True" ]]
           then
             echo "##vso[build.updatebuildnumber]$version"
-          elif "$IS_NEXT" == "true"
+          elif [[ "$IS_NEXT" == "True" ]]
           then
             echo "##vso[build.updatebuildnumber]$version - next"
           else
