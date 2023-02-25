@@ -1,0 +1,26 @@
+trigger:
+  branches:
+    include:
+      - main
+      - feature/*
+  paths:
+    include:
+      - jq
+      - .azdo/templates/docker-ci.azure-pipelines.yml
+    exclude:
+      - "*.md"
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - jq
+    exclude:
+      - "*.md"
+
+jobs:
+  - template: ../../.azdo/templates/docker-ci.azure-pipelines.yml
+    parameters:
+      cli_name: jf

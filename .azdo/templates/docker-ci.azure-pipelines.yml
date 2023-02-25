@@ -1,0 +1,56 @@
+parameters:
+  - name: cli_name
+    displayName: CLI Name
+    type: string
+
+jobs:
+  - job: build
+    displayName: Build & Publish
+    variables:
+      is_release: $[eq(variables['Build.SourceBranch'], 'refs/heads/main'))]
+      is_next: $[and( eq(variables['BuildReason'], 'PullRequest'), eq(variablesp['System.PullRequest.TargetBranch'], 'refs/heads/main'))]
+
+    steps:
+      - checkout: self
+        persistCredentials: true
+
+      - bash: |
+          version="$(grep -i '${{ parameters.cli_name }}_VERSON' ${{ parameters.cli_name }}/Dockerfile | cut -d= -f2)"
+          echo "##vso[task.setvariable variable=cli.version]$version"
+          echo "##vso[build.updatebuildnumber]$version"
+        displayName: Init Variables
+
+      - task: Docker@2
+        displayName: Build
+        inputs:
+          containerRegistry: hub.docker.com
+          repository: gstmichel/${{ parameters.cli_name }}
+          command: build
+          Dockerfile: "**/Dockerfile"
+          buildContext: ${{ parameters.cli_name }}
+          tags: |
+            $(cli.version)
+            latest
+            next
+
+      - ${{ if eq(variables['BuildReason'], 'PullRequest')) }}:
+          - task: Docker@2
+            displayName: Publish
+            inputs:
+              containerRegistry: hub.docker.com
+              repository: gstmichel/${{ parameters.cli_name }}
+              command: push
+              tags: |
+                next
+            condition: $(variables['is_next'])
+
+      - ${{ elseif eq(variables['Build.SourceBranch'], 'refs/heads/main')) }}:
+          - task: Docker@2
+            displayName: Publish
+            inputs:
+              containerRegistry: hub.docker.com
+              repository: gstmichel/${{ parameters.cli_name }}
+              command: push
+              tags: |
+                $(cli.version)
+                latest
