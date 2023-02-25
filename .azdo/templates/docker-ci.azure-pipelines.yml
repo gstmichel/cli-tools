@@ -8,7 +8,7 @@ jobs:
     displayName: Build & Publish
     variables:
       is_release: $[and( ne(variables['BuildReason'], 'PullRequest'), eq(variables['Build.SourceBranch'], 'refs/heads/main'))]
-      is_next: $[and( eq(variables['BuildReason'], 'PullRequest'), eq(variablesp['System.PullRequest.TargetBranch'], 'refs/heads/main'))]
+      is_next: $[and( eq(variables['BuildReason'], 'PullRequest'), eq(variables['System.PullRequest.TargetBranch'], 'refs/heads/main'))]
 
     steps:
       - checkout: self
