@@ -57,7 +57,7 @@ Adding an Alias (function on windows)
 
 ## CLI Directory (Alphabetically)
 
-| CLI                              | Build Status                                                                                                                                                                                                |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [Ansible](./ansible/REAME.md)    | [![Build Status](https://dev.azure.com/8902828/Public/_apis/build/status/cli-tools/ansible/ansible-ci?branchName=main)](https://dev.azure.com/8902828/Public/_build/latest?definitionId=14&branchName=main) |
-| [jf (JFrog CLI)](./jf/README.md) | [![Build Status](https://dev.azure.com/8902828/Public/_apis/build/status/cli-tools/jf/jf-ci?branchName=main)](https://dev.azure.com/8902828/Public/_build/latest?definitionId=15&branchName=main)           |
+| CLI                              | Last Version | Build Status                                                                                                                                                                                                |
+| -------------------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Ansible](./ansible/REAME.md)    |              | [![Build Status](https://dev.azure.com/8902828/Public/_apis/build/status/cli-tools/ansible/ansible-ci?branchName=main)](https://dev.azure.com/8902828/Public/_build/latest?definitionId=14&branchName=main) |
+| [jf (JFrog CLI)](./jf/README.md) | 2.34.3       | [![Build Status](https://dev.azure.com/8902828/Public/_apis/build/status/cli-tools/jf/jf-ci?branchName=main)](https://dev.azure.com/8902828/Public/_build/latest?definitionId=15&branchName=main)           |
