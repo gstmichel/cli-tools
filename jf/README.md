@@ -1,6 +1,6 @@
 # Introduction
 
-![Build Status](https://dev.azure.com/8902828/Public/_apis/build/status/cli-tools/jf/jf-ci?branchName=main)](https://dev.azure.com/8902828/Public/_build/latest?definitionId=15&branchName=main)
+[![Build Status](https://dev.azure.com/8902828/Public/_apis/build/status/cli-tools/jf/jf-ci?branchName=main)](https://dev.azure.com/8902828/Public/_build/latest?definitionId=15&branchName=main)
 
 - **Tool**: JFrog CLI
 - **Container**: gstmichel/jf
