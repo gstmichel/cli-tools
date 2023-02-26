@@ -4,7 +4,7 @@ trigger:
       - main
   paths:
     include:
-      - jf
+      - terraform
       - .azdo/templates/docker-ci.azure-pipelines.yml
     exclude:
       - "*.md"
