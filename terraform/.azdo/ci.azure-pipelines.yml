@@ -42,7 +42,7 @@ jobs:
           containerRegistry: hub.docker.com
           repository: gstmichel/terraform
           command: build
-          Dockerfile: "**/Dockerfile"
+          Dockerfile: "terraform/Dockerfile"
           buildContext: terraform
           tags: |
             $(cli.version)
