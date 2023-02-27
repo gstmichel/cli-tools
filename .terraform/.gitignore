@@ -1,0 +1,4 @@
+*.lock*
+.terraform/
+backend.conf
+env.auto.tfvars

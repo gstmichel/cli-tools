@@ -1,0 +1,61 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - .terraform
+    exclude:
+      - "*.rm"
+
+variables:
+  - group: terraform
+
+workspace:
+  clean: all
+
+steps:
+  - checkout: self
+
+  - bash: |
+      touch .terraform/backend.conf
+      echo "storage_account_name=\"$ARM_STORAGE_ACCOUNT_NAME\"" >> .terraform/backend.conf
+      echo "container_name=\"$ARM_CONTAINER_NAME\"" >> .terraform/backend.conf
+      echo "key=\"$ARM_KEY\"" >> .terraform/backend.conf
+      echo "access_key=\"$ARM_ACCESS_KEY\"" >> .terraform/backend.conf
+    displayName: Setup backend.conf
+    env:
+      ARM_STORAGE_ACCOUNT_NAME: $(ARM_STORAGE_ACCOUNT_NAME)
+      ARM_CONTAINER_NAME: $(ARM_CONTAINER_NAME)
+      ARM_KEY: $(ARM_KEY)
+      ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+
+  - bash: |
+      touch .terraform/env.auto.tfvars
+      echo "AZDO_ORG_SERVICE_URL       = \"$AZDO_ORG_SERVICE_URL\"" >> .terraform/env.auto.tfvars
+      echo "AZDO_PERSONAL_ACCESS_TOKEN = \"$AZDO_PERSONAL_ACCESS_TOKEN\"" >> .terraform/env.auto.tfvars
+      echo "ARM_STORAGE_ACCOUNT_NAME   = \"$ARM_STORAGE_ACCOUNT_NAME\"" >> .terraform/env.auto.tfvars
+      echo "ARM_CONTAINER_NAME         = \"$ARM_CONTAINER_NAME\"" >> .terraform/env.auto.tfvars
+      echo "ARM_KEY                    = \"$ARM_KEY\"" >> .terraform/env.auto.tfvars
+      echo "ARM_ACCESS_KEY             = \"$ARM_ACCESS_KEY\"" >> .terraform/env.auto.tfvars
+    displayName: Setup env.auto.tfvars
+    env:
+      AZDO_ORG_SERVICE_URL: $(System.CollectionUri)
+      AZDO_PERSONAL_ACCESS_TOKEN: $(System.AccessToken)
+      ARM_STORAGE_ACCOUNT_NAME: $(ARM_STORAGE_ACCOUNT_NAME)
+      ARM_CONTAINER_NAME: $(ARM_CONTAINER_NAME)
+      ARM_KEY: $(ARM_KEY)
+      ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+
+  - bash: docker run --rm -t -v $(pwd):/workspace -u $(id -u):$(id -g) gstmichel/terraform init -backend-config=backend.conf -input=false
+    displayName: Init
+    workingDirectory: $(System.DefaultWorkingDirectory)/.terraform
+
+  - bash: docker run --rm -t -v $(pwd):/workspace -u $(id -u):$(id -g) gstmichel/terraform plan -out=tfplan -input=false
+    displayName: Plan
+    workingDirectory: $(System.DefaultWorkingDirectory)/.terraform
+
+  - ${{ if and( ne(variables['BuildReason'], 'PullRequest'), eq(variables['Build.SourceBranch'], 'refs/heads/main') ) }}:
+      - bash: docker run --rm -t -v $(pwd):/workspace -u $(id -u):$(id -g) gstmichel/terraform apply -input=false tfplan
+        displayName: Apply
+        workingDirectory: $(System.DefaultWorkingDirectory)/.terraform
