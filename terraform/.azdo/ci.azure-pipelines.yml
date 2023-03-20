@@ -1,0 +1,72 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - terraform
+      - .azdo/templates/docker-ci.azure-pipelines.yml
+    exclude:
+      - "*.md"
+
+jobs:
+  - job: build
+    displayName: Build & Publish
+    variables:
+      is_release: $[and( ne(variables['BuildReason'], 'PullRequest'), eq(variables['Build.SourceBranch'], 'refs/heads/main'))]
+      is_next: $[and( eq(variables['BuildReason'], 'PullRequest'), eq(variables['System.PullRequest.TargetBranch'], 'main'))]
+
+    steps:
+      - checkout: self
+
+      - bash: |
+          echo "$(System.PullRequest.TargetBranch)"
+          version="$(grep -i 'terraform_version=' terraform/Dockerfile | cut -d= -f2 | cut -d' ' -f1)"
+          echo "##vso[task.setvariable variable=cli.version]$version"
+
+          if [[ "$IS_RELEASE" == "True" ]]
+          then
+            echo "##vso[build.updatebuildnumber]$version"
+          elif [[ "$IS_NEXT" == "True" ]]
+          then
+            echo "##vso[build.updatebuildnumber]$version - next"
+          else
+            echo "##vso[build.updatebuildnumber]$version - validation"
+          fi
+
+        displayName: Init Variables
+
+      - task: Docker@2
+        displayName: Build
+        inputs:
+          containerRegistry: hub.docker.com
+          repository: gstmichel/terraform
+          command: build
+          Dockerfile: "terraform/Dockerfile"
+          buildContext: terraform
+          tags: |
+            $(cli.version)
+            latest
+            next
+
+      - ${{ if eq(variables['BuildReason'], 'PullRequest') }}:
+          - task: Docker@2
+            displayName: Publish
+            inputs:
+              containerRegistry: hub.docker.com
+              repository: gstmichel/terraform
+              command: push
+              tags: |
+                next
+            condition: $(variables['is_next'])
+
+      - ${{ elseif and(eq(variables['BuildReason'], 'PullRequest'), eq(variables['Build.SourceBranch'], 'refs/heads/main')) }}:
+          - task: Docker@2
+            displayName: Publish
+            inputs:
+              containerRegistry: hub.docker.com
+              repository: gstmichel/terraform
+              command: push
+              tags: |
+                $(cli.version)
+                latest
